@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decoy · 같이 만들기</title>
+<meta property="og:title" content="Decoy">
+<meta property="og:description" content="같이 블럭 쌓아요 · Come build with me">
+<link rel="stylesheet" href="style.css">
+<style>
+  .open { display: inline-block; margin-top: 8px; padding: 14px 26px; border-radius: 999px;
+          background: #1c1c1e; color: #fff; text-decoration: none; font-weight: 700; }
+  .sub { margin-top: 18px; font-size: 15px; opacity: .6; }
+  .sub a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <header><span class="dot" aria-hidden="true"></span><a href="./">Decoy</a></header>
+  <h1 id="title">같이 블럭 쌓아요</h1>
+  <p id="desc">친구가 Decoy에서 함께 만들자고 초대했어요.</p>
+  <a class="open" id="open" href="#">Decoy에서 열기</a>
+  <p class="sub" id="store">앱이 없다면 <a href="https://apps.apple.com/app/id6838769878">App Store에서 받기</a></p>
+  <footer>© 2026 Decoy</footer>
+</main>
+<script>
+  // 방 코드는 앱이 만드는 6글자만 받는다
+  var room = new URLSearchParams(location.search).get("room") || "";
+  var ok = /^[A-HJ-NP-Z2-9]{6}$/.test(room);
+  var en = !/^ko/i.test(navigator.language || "");
+  if (en) {
+    document.documentElement.lang = "en";
+    document.getElementById("title").textContent = "Come build with me";
+    document.getElementById("desc").textContent = "A friend invited you to build together in Decoy.";
+    document.getElementById("open").textContent = "Open in Decoy";
+    document.getElementById("store").innerHTML = 'No app yet? <a href="https://apps.apple.com/app/id6838769878">Get it on the App Store</a>';
+  }
+  var link = document.getElementById("open");
+  if (ok) {
+    var url = "decoy://join?room=" + room;
+    link.href = url;
+    location.href = url;
+  } else {
+    link.style.display = "none";
+  }
+</script>
+</body>
+</html>
