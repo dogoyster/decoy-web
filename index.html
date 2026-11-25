@@ -1,95 +1,322 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Decoy</title>
-<link rel="stylesheet" href="style.css">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#FFD84A">
+<title>Decoy · The brick bin that never runs out</title>
+<meta name="description" content="A bottomless pile of bricks on your iPhone. Dig in, hear the click, build anything. Join the waitlist.">
+<meta property="og:title" content="Decoy · The brick bin that never runs out">
+<meta property="og:description" content="Dig in. Click. Build anything. Coming soon to iPhone.">
+<meta property="og:image" content="https://dogoyster.github.io/decoy-web/img/og.png">
+<meta property="og:url" content="https://dogoyster.github.io/decoy-web/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Jua&family=M+PLUS+Rounded+1c:wght@800&display=swap">
+<style>
+  :root {
+    --sun: #FFD84A; --sun-deep: #F5C518; --ink: #1E1B16; --ink-2: #5C4A10;
+    --paper: #FFFFFF; --brick: #E8452C; --brick-dark: #B8301B; --green: #2FA35A;
+    --display: "Fredoka", ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+    --body: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Hiragino Sans", "Pretendard", system-ui, sans-serif;
+    color-scheme: light;
+  }
+  :lang(ko) body { word-break: keep-all; overflow-wrap: anywhere; }
+  :lang(ko) { --display: "Jua", "Fredoka", ui-rounded, "Apple SD Gothic Neo", sans-serif; }
+  :lang(ja) { --display: "M PLUS Rounded 1c", "Fredoka", ui-rounded, "Hiragino Maru Gothic ProN", sans-serif; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--sun); color: var(--ink); font: 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-left)) 0 max(16px, env(safe-area-inset-right)); }
+
+  /* 위 막대: 아이콘 + 언어 */
+  .top { display: flex; align-items: center; justify-content: space-between; padding-top: max(14px, env(safe-area-inset-top)); }
+  .top img { width: 40px; height: 40px; border-radius: 11px; box-shadow: 0 2px 0 rgba(0,0,0,.12); display: block; }
+  .langs { display: flex; background: rgba(255,255,255,.55); border-radius: 999px; padding: 3px; }
+  .langs button { font: 600 13px/1 var(--body); color: var(--ink); background: none; border: 0; padding: 8px 11px; border-radius: 999px; cursor: pointer; }
+  .langs button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+
+  /* 이름과 부제 */
+  .hero { text-align: center; padding: 22px 0 6px; }
+  .name { font: 700 clamp(64px, 20vw, 104px)/.95 "Fredoka", ui-rounded, sans-serif; letter-spacing: -0.02em; margin: 0; }
+  .sub { font: 400 clamp(25px, 7.4vw, 36px)/1.15 var(--display); margin: 10px auto 0; max-width: 13em; text-wrap: balance; }
+  :lang(en) .sub { font-weight: 600; }
+  .sub em { font-style: normal; color: var(--brick); }
+  .soon { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font: 600 13px/1 var(--body); color: var(--ink-2); background: rgba(255,255,255,.5); padding: 7px 12px; border-radius: 999px; }
+  .soon::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+
+  /* 끝없이 흘러가는 작품 줄 */
+  .belt { margin: 22px 0 4px; overflow: hidden; padding: 14px 0 18px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .track { display: flex; gap: 14px; width: max-content; animation: roll 38s linear infinite; }
+  .belt:hover .track { animation-play-state: paused; }
+  .tile { flex: 0 0 auto; width: 136px; height: 136px; border: 0; padding: 0; border-radius: 22px; background: var(--paper); box-shadow: 0 6px 0 rgba(92,74,16,.18); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .tile img { width: 100%; height: 100%; border-radius: 22px; display: block; pointer-events: none; }
+  .tile:nth-child(odd) { transform: rotate(-3deg); }
+  .tile:nth-child(even) { transform: rotate(3deg) translateY(6px); }
+  .tile.hop { animation: hop .38s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes roll { to { transform: translateX(-50%); } }
+  @keyframes hop { 0% { translate: 0 0; } 40% { translate: 0 -16px; } 100% { translate: 0 0; } }
+  .hint { text-align: center; font-size: 13px; color: var(--ink-2); margin: 0; }
+
+  /* 신청 카드 */
+  .card { background: var(--paper); border-radius: 28px; padding: 24px 20px 20px; margin: 22px 0 0; box-shadow: 0 8px 0 rgba(92,74,16,.16); }
+  .card h2 { font: 400 26px/1.2 var(--display); margin: 0; }
+  :lang(en) .card h2 { font-weight: 700; }
+  .card .lead { margin: 6px 0 16px; color: #4a4639; font-size: 15px; }
+  .field { display: block; width: 100%; font: 17px/1.2 var(--body); color: var(--ink); background: #FFF8E1; border: 2px solid #F1E3B0; border-radius: 16px; padding: 15px 16px; outline: none; -webkit-appearance: none; appearance: none; }
+  .field:focus { border-color: var(--ink); background: #fff; }
+  .go { position: relative; display: block; width: 100%; margin-top: 22px; font: 700 18px/1 var(--display); color: #fff; background: var(--brick); border: 0; border-radius: 14px; padding: 18px 16px; box-shadow: 0 5px 0 var(--brick-dark); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .08s, box-shadow .08s; }
+  :lang(ko) .go, :lang(ja) .go { font-weight: 400; }
+  :lang(ja) .go { font-weight: 800; }
+  /* 버튼 위 돌기 둘: 블럭처럼 */
+  .go::before, .go::after { content: ""; position: absolute; top: -9px; width: 34px; height: 12px; border-radius: 8px 8px 3px 3px; background: var(--brick); box-shadow: inset 0 -3px 0 var(--brick-dark); }
+  .go::before { left: 22%; } .go::after { right: 22%; }
+  .go:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--brick-dark); }
+  .go:disabled { opacity: .6; cursor: default; }
+  .agree { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: 13.5px; line-height: 1.45; color: #5b5748; cursor: pointer; }
+  .agree input { flex: 0 0 auto; width: 20px; height: 20px; margin: 0; accent-color: var(--ink); }
+  .agree a { color: inherit; }
+  .msg { min-height: 1.4em; margin: 12px 0 0; font-size: 15px; font-weight: 600; text-align: center; }
+  .msg.ok { color: var(--green); } .msg.bad { color: var(--brick-dark); }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* 무엇을 하는 앱인지 */
+  .pitch { text-align: center; margin: 40px 0 8px; }
+  .pitch h3 { font: 400 28px/1.2 var(--display); margin: 0; text-wrap: balance; }
+  :lang(en) .pitch h3 { font-weight: 700; }
+  .pitch p { margin: 8px auto 0; max-width: 26em; color: #3b3627; }
+  .feats { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 12px; text-align: left; }
+  .feats li { display: flex; gap: 14px; align-items: flex-start; background: rgba(255,255,255,.6); border-radius: 20px; padding: 16px; }
+  .feats b { display: block; font: 400 19px/1.25 var(--display); margin-bottom: 2px; }
+  :lang(en) .feats b { font-weight: 600; }
+  .feats span { font-size: 15px; color: #3b3627; }
+  .chip { flex: 0 0 auto; width: 40px; height: 28px; margin-top: 6px; border-radius: 6px; position: relative; box-shadow: inset 0 -4px 0 rgba(0,0,0,.16); }
+  .chip::before, .chip::after { content: ""; position: absolute; top: -6px; width: 12px; height: 7px; border-radius: 4px 4px 1px 1px; background: inherit; }
+  .chip::before { left: 6px; } .chip::after { right: 6px; }
+  .c1 { background: var(--brick); } .c2 { background: var(--green); } .c3 { background: #3B7BE0; }
+
+  footer { text-align: center; padding: 36px 0 max(32px, env(safe-area-inset-bottom)); font-size: 13px; color: var(--ink-2); }
+  footer nav { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+  footer a { color: var(--ink); }
+
+  @media (min-width: 720px) {
+    .tile { width: 168px; height: 168px; }
+    .card { padding: 30px 30px 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .track { animation: none; }
+    .belt { overflow-x: auto; }
+    .tile.hop { animation: none; }
+  }
+</style>
 </head>
 <body>
-<main>
-  <header><span class="dot" aria-hidden="true"></span><a href="./">Decoy</a></header>
-  <h1>손으로 만지는 조용한 블럭 장난감</h1>
-  <p>블럭 더미를 손끝으로 헤집고, 바스락 소리를 들으며, 원하는 모양을 하나씩 쌓아 보세요. 글자 없는 화면에서 블럭과 손만 남습니다.</p>
-
-  <form class="wait" id="wait" novalidate>
-    <h2 id="w-title">출시되면 알려 드릴게요</h2>
-    <div class="wait-row">
-      <label for="w-email" class="sr" id="w-label">이메일</label>
-      <input id="w-email" type="email" name="email" autocomplete="email" inputmode="email" required maxlength="254" placeholder="이메일 주소">
-      <button type="submit" id="w-btn">알림 받기</button>
+<div class="wrap">
+  <div class="top">
+    <img src="img/icon.png" alt="">
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="ko" aria-pressed="false">한국어</button>
+      <button type="button" data-lang="ja" aria-pressed="false">日本語</button>
     </div>
+  </div>
+
+  <header class="hero">
+    <h1 class="name">Decoy</h1>
+    <p class="sub" data-t="sub" data-html>The brick bin that <em>never runs out</em></p>
+    <span class="soon" data-t="soon">Coming soon to iPhone</span>
+  </header>
+</div>
+
+<div class="belt" id="belt" aria-hidden="true"><div class="track" id="track"></div></div>
+<p class="hint" data-t="hint">Tap a build to hear the click</p>
+
+<div class="wrap">
+  <form class="card" id="wait" novalidate>
+    <h2 data-t="formTitle">Get it first</h2>
+    <p class="lead" data-t="formLead">One email when Decoy lands on iPhone. That's it.</p>
+    <label for="w-email" class="sr" data-t="emailLabel">Email</label>
+    <input class="field" id="w-email" type="email" name="email" autocomplete="email" inputmode="email" required maxlength="254" placeholder="Email address" data-ph="placeholder">
     <!-- 사람은 보지 못하는 칸: 채워져 있으면 자동 입력으로 보고 저장하지 않는다 -->
     <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-    <label class="agree"><input type="checkbox" id="w-agree" required> <span id="w-agree-text">출시 소식을 보내기 위해 이메일 주소를 받고, 출시 알림을 보낸 뒤 3개월 안에 지웁니다. 동의하지 않으면 신청할 수 없어요.</span> <a href="privacy.html#waitlist" id="w-more">자세히</a></label>
-    <p class="wait-msg" id="w-msg" role="status" aria-live="polite"></p>
+    <button class="go" type="submit" id="w-btn" data-t="button">Notify me</button>
+    <label class="agree"><input type="checkbox" id="w-agree" required> <span><span data-t="consent">Save my email for the launch notice. It's deleted within 3 months after that email.</span> <a href="privacy.html#waitlist-en" id="w-more" data-t="details">Details</a></span></label>
+    <p class="msg" id="w-msg" role="status" aria-live="polite"></p>
   </form>
-  <div class="lang" lang="en">
-    <h1>A quiet brick toy you can touch</h1>
-    <p>Rummage through a pile of bricks, listen to them rustle, and build whatever you like, one brick at a time. No words on screen, just bricks and your hands.</p>
-  </div>
-  <nav class="links">
-    <a href="privacy.html">개인정보처리방침 · Privacy</a>
-    <a href="terms.html">이용약관 · Terms</a>
-    <a href="https://github.com/dogoyster/decoy-web/issues">문의 · Contact</a>
-  </nav>
-  <footer>© 2026 Decoy</footer>
-</main>
+
+  <section class="pitch">
+    <h3 data-t="tagline">Dig in. Click. Build anything.</h3>
+    <p data-t="body">A bottomless pile of bricks in your pocket. Nothing to step on, nothing to clean up.</p>
+    <ul class="feats">
+      <li><i class="chip c1"></i><div><b data-t="f1">Never runs out</b><span data-t="f1d">Grab as many bricks as you like. The pile always fills back up.</span></div></li>
+      <li><i class="chip c2"></i><div><b data-t="f2">Clicks like the real thing</b><span data-t="f2d">Bricks snap only where the studs meet, with the sound to match.</span></div></li>
+      <li><i class="chip c3"></i><div><b data-t="f3">Watch it come together</b><span data-t="f3d">Save a video of your build stacking up, brick by brick, and show it off.</span></div></li>
+    </ul>
+  </section>
+
+  <footer>
+    <nav>
+      <a href="privacy.html" data-t="privacy">Privacy</a>
+      <a href="terms.html" data-t="terms">Terms</a>
+      <a href="https://github.com/dogoyster/decoy-web/issues" data-t="contact">Contact</a>
+    </nav>
+    © 2026 Decoy
+  </footer>
+</div>
+
 <script>
 (function () {
+  var T = {
+    en: {
+      sub: 'The brick bin that <em>never runs out</em>',
+      soon: "Coming soon to iPhone",
+      hint: "Tap a build to hear the click",
+      formTitle: "Get it first",
+      formLead: "One email when Decoy lands on iPhone. That's it.",
+      emailLabel: "Email", placeholder: "Email address",
+      button: "Notify me",
+      consent: "Save my email for the launch notice. It's deleted within 3 months after that email.",
+      details: "Details",
+      tagline: "Dig in. Click. Build anything.",
+      body: "A bottomless pile of bricks in your pocket. Nothing to step on, nothing to clean up.",
+      f1: "Never runs out", f1d: "Grab as many bricks as you like. The pile always fills back up.",
+      f2: "Clicks like the real thing", f2d: "Bricks snap only where the studs meet, with the sound to match.",
+      f3: "Watch it come together", f3d: "Save a video of your build stacking up, brick by brick, and show it off.",
+      privacy: "Privacy", terms: "Terms", contact: "Contact",
+      invalid: "Please check your email address.",
+      agree: "Please tick the box to agree.",
+      sending: "Sending…",
+      done: "You're in. We'll tell you the moment it's out.",
+      fail: "That didn't go through. Try again in a moment.",
+      title: "Decoy · The brick bin that never runs out",
+      privacyHash: "#waitlist-en"
+    },
+    ko: {
+      sub: '<em>끝없이 나오는</em> 블럭 상자',
+      soon: "iPhone 출시 예정",
+      hint: "작품을 누르면 딸깍 소리가 나요",
+      formTitle: "가장 먼저 받아 보세요",
+      formLead: "iPhone에 나오는 날, 메일 한 통만 보내요.",
+      emailLabel: "이메일", placeholder: "이메일 주소",
+      button: "출시 알림 받기",
+      consent: "출시 알림을 위해 이메일을 저장하는 데 동의해요. 알림을 보낸 뒤 3개월 안에 지워요.",
+      details: "자세히",
+      tagline: "헤집고, 딸깍, 뭐든 쌓아요",
+      body: "주머니 속 바닥 없는 블럭 더미. 밟을 일도, 치울 일도 없어요.",
+      f1: "끝없이 꺼내 써요", f1d: "블럭을 얼마든지 꺼내도 더미가 다시 차올라요.",
+      f2: "진짜처럼 딸깍", f2d: "돌기가 맞는 자리에만 붙어요. 소리까지 그대로.",
+      f3: "쌓이는 장면을 영상으로", f3d: "블럭이 하나씩 쌓이는 영상으로 저장해서 자랑해요.",
+      privacy: "개인정보처리방침", terms: "이용약관", contact: "문의",
+      invalid: "이메일 주소를 확인해 주세요.",
+      agree: "동의에 체크해 주세요.",
+      sending: "보내는 중…",
+      done: "신청됐어요. 나오는 날 바로 알려 드릴게요.",
+      fail: "지금은 신청되지 않았어요. 잠시 후 다시 해 주세요.",
+      title: "Decoy · 끝없이 나오는 블럭 상자",
+      privacyHash: "#waitlist"
+    },
+    ja: {
+      sub: '<em>底なしの</em>ブロック箱',
+      soon: "iPhone版 近日公開",
+      hint: "作品をタップすると、カチッと鳴ります",
+      formTitle: "いち早く遊ぼう",
+      formLead: "iPhone版が出たら、メールを一通だけお送りします。",
+      emailLabel: "メール", placeholder: "メールアドレス",
+      button: "リリース通知を受け取る",
+      consent: "リリース通知のためにメールアドレスを保存することに同意します。通知後3か月以内に削除します。",
+      details: "詳細",
+      tagline: "かき混ぜて、カチッ、なんでも作ろう",
+      body: "ポケットの中の、底なしのブロックの山。踏んで痛いことも、片付けもなし。",
+      f1: "いくらでも取り出せる", f1d: "どれだけ使っても、山はまたいっぱいに。",
+      f2: "本物みたいにカチッ", f2d: "ポッチが合う場所にだけはまります。音もそのまま。",
+      f3: "できあがる様子を動画に", f3d: "ひとつずつ積み上がる動画を保存して、シェアしよう。",
+      privacy: "プライバシー", terms: "利用規約", contact: "お問い合わせ",
+      invalid: "メールアドレスをご確認ください。",
+      agree: "同意にチェックしてください。",
+      sending: "送信中…",
+      done: "登録しました。リリースしたらすぐにお知らせします。",
+      fail: "うまく送れませんでした。少し時間をおいて、もう一度お試しください。",
+      title: "Decoy · 底なしのブロック箱",
+      privacyHash: "#waitlist-en"
+    }
+  };
+
+  // 언어: 주소의 ?lang= → 전에 고른 것 → 영어
+  var q = new URLSearchParams(location.search);
+  var store = { get: function () { try { return localStorage.getItem("decoy.lang"); } catch (e) { return null; } },
+                set: function (v) { try { localStorage.setItem("decoy.lang", v); } catch (e) {} } };
+  var lang = [q.get("lang"), store.get(), "en"].filter(function (l) { return l && T[l]; })[0];
+  var t = T[lang];
+
+  function apply(l) {
+    lang = l; t = T[l];
+    document.documentElement.lang = l;
+    document.title = t.title;
+    document.querySelectorAll("[data-t]").forEach(function (el) {
+      var k = el.getAttribute("data-t");
+      if (el.hasAttribute("data-html")) el.innerHTML = t[k]; else el.textContent = t[k];
+    });
+    document.querySelectorAll("[data-ph]").forEach(function (el) { el.placeholder = t[el.getAttribute("data-ph")]; });
+    document.getElementById("w-more").href = "privacy.html" + t.privacyHash;
+    document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.lang === l)); });
+    document.getElementById("w-msg").textContent = "";
+  }
+  document.querySelectorAll(".langs button").forEach(function (b) {
+    b.addEventListener("click", function () { apply(b.dataset.lang); store.set(b.dataset.lang); });
+  });
+  apply(lang);
+
+  // 작품 줄: 두 번 이어 붙여 끝없이 흐르게
+  var builds = ["duck", "tuxedo", "tree", "frog", "castle", "cake", "penguin", "chick"];
+  var track = document.getElementById("track");
+  builds.concat(builds).forEach(function (n) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "tile"; b.tabIndex = -1;
+    b.innerHTML = '<img src="img/' + n + '.webp" alt="" width="168" height="168" decoding="async">';
+    track.appendChild(b);
+  });
+
+  // 누르면 통 튀고 딸깍
+  var snaps = [0, 1, 2, 3].map(function (i) { var a = new Audio("sfx/snap_" + i + ".wav"); a.preload = "auto"; return a; });
+  track.addEventListener("click", function (ev) {
+    var tile = ev.target.closest(".tile"); if (!tile) return;
+    tile.classList.remove("hop"); void tile.offsetWidth; tile.classList.add("hop");
+    var a = snaps[Math.floor(Math.random() * snaps.length)].cloneNode();
+    a.volume = 0.9; a.play().catch(function () {});
+  });
+
   // 대기 명단 신청. 공개용 키라 페이지에 있어도 된다(서버는 join_waitlist 함수로 넣기만 허용).
   var API = "https://dkoeulbfpwtxlfhounvq.supabase.co/rest/v1/rpc/join_waitlist";
   var KEY = "sb_publishable_Qyt-b42bhEJ3N9RSfNocdA_tkohPm7J";
-  var ko = /^ko/i.test(navigator.language || "");
-  var t = ko ? {
-    invalid: "이메일 주소를 확인해 주세요.",
-    agree: "동의에 체크해 주세요.",
-    sending: "보내는 중…",
-    done: "신청됐어요. 출시되면 가장 먼저 알려 드릴게요.",
-    fail: "지금은 신청되지 않았어요. 잠시 후 다시 해 주세요."
-  } : {
-    invalid: "Please check your email address.",
-    agree: "Please tick the consent box.",
-    sending: "Sending…",
-    done: "You're on the list. We'll let you know when Decoy is out.",
-    fail: "That didn't go through. Please try again in a moment."
-  };
-  if (!ko) {
-    var set = function (id, s) { document.getElementById(id).textContent = s; };
-    set("w-title", "Get notified at launch");
-    set("w-label", "Email");
-    set("w-btn", "Notify me");
-    set("w-agree-text", "We collect your email only to tell you when Decoy launches, and delete it within 3 months after that email. You can't sign up without agreeing.");
-    set("w-more", "Details");
-    document.getElementById("w-more").href = "privacy.html#waitlist-en";
-    document.getElementById("w-email").placeholder = "Email address";
-  }
-
-  var q = new URLSearchParams(location.search);
   // 어느 게시물에서 왔는지: 링크에 ?from=reel01 처럼 붙인다
   var source = (q.get("from") || q.get("utm_source") || "").replace(/[^\w.-]/g, "").slice(0, 64);
-
   var form = document.getElementById("wait"), email = document.getElementById("w-email"),
       agree = document.getElementById("w-agree"), btn = document.getElementById("w-btn"),
       msg = document.getElementById("w-msg");
-  var say = function (s, bad) { msg.textContent = s; msg.classList.toggle("bad", !!bad); };
+  function say(s, kind) { msg.textContent = s; msg.className = "msg" + (kind ? " " + kind : ""); }
 
   form.addEventListener("submit", function (ev) {
     ev.preventDefault();
     var v = email.value.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || v.length > 254) { say(t.invalid, true); email.focus(); return; }
-    if (!agree.checked) { say(t.agree, true); agree.focus(); return; }
-    if (form.website.value) { form.reset(); say(t.done); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || v.length > 254) { say(t.invalid, "bad"); email.focus(); return; }
+    if (!agree.checked) { say(t.agree, "bad"); return; }
+    if (form.website.value) { form.reset(); say(t.done, "ok"); return; }
     btn.disabled = true; say(t.sending);
     fetch(API, {
       method: "POST",
       headers: { "apikey": KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ p_email: v, p_lang: navigator.language || "", p_source: source })
+      body: JSON.stringify({ p_email: v, p_lang: lang, p_source: source })
     }).then(function (r) {
-      if (r.ok) { form.reset(); say(t.done); }
-      else if (r.status === 400) { say(t.invalid, true); }
-      else { say(t.fail, true); }
-    }).catch(function () { say(t.fail, true); })
+      if (r.ok) { form.reset(); say(t.done, "ok"); }
+      else if (r.status === 400) { say(t.invalid, "bad"); }
+      else { say(t.fail, "bad"); }
+    }).catch(function () { say(t.fail, "bad"); })
       .then(function () { btn.disabled = false; });
   });
 })();
