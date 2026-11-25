@@ -15,3 +15,17 @@ nav.links { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 28px; }
 nav.links a, a { color: var(--fg); text-underline-offset: 3px; }
 ul { padding-left: 20px; }
 footer { color: var(--muted); font-size: 13px; margin-top: 64px; }
+.wait { margin-top: 36px; }
+.wait h2 { margin-top: 0; }
+.wait-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.wait input[type=email] { flex: 1 1 220px; min-width: 0; font: inherit; color: var(--fg); background: var(--bg); padding: 12px 16px; border: 1px solid var(--line); border-radius: 999px; outline: none; }
+.wait input[type=email]:focus { border-color: var(--muted); }
+.wait button { flex: 0 0 auto; font: inherit; font-weight: 700; padding: 12px 24px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); cursor: pointer; }
+.wait button:disabled { opacity: .5; cursor: default; }
+.agree { display: block; margin-top: 12px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.agree input { margin: 0 4px 0 0; vertical-align: -1px; }
+.agree a { color: var(--muted); }
+.wait-msg { min-height: 1.5em; margin: 10px 0 0; font-size: 15px; }
+.wait-msg.bad { color: #c2410c; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }

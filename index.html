@@ -11,6 +11,19 @@
   <header><span class="dot" aria-hidden="true"></span><a href="./">Decoy</a></header>
   <h1>손으로 만지는 조용한 블럭 장난감</h1>
   <p>블럭 더미를 손끝으로 헤집고, 바스락 소리를 들으며, 원하는 모양을 하나씩 쌓아 보세요. 글자 없는 화면에서 블럭과 손만 남습니다.</p>
+
+  <form class="wait" id="wait" novalidate>
+    <h2 id="w-title">출시되면 알려 드릴게요</h2>
+    <div class="wait-row">
+      <label for="w-email" class="sr" id="w-label">이메일</label>
+      <input id="w-email" type="email" name="email" autocomplete="email" inputmode="email" required maxlength="254" placeholder="이메일 주소">
+      <button type="submit" id="w-btn">알림 받기</button>
+    </div>
+    <!-- 사람은 보지 못하는 칸: 채워져 있으면 자동 입력으로 보고 저장하지 않는다 -->
+    <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="agree"><input type="checkbox" id="w-agree" required> <span id="w-agree-text">출시 소식을 보내기 위해 이메일 주소를 받고, 출시 알림을 보낸 뒤 3개월 안에 지웁니다. 동의하지 않으면 신청할 수 없어요.</span> <a href="privacy.html#waitlist" id="w-more">자세히</a></label>
+    <p class="wait-msg" id="w-msg" role="status" aria-live="polite"></p>
+  </form>
   <div class="lang" lang="en">
     <h1>A quiet brick toy you can touch</h1>
     <p>Rummage through a pile of bricks, listen to them rustle, and build whatever you like, one brick at a time. No words on screen, just bricks and your hands.</p>
@@ -22,5 +35,64 @@
   </nav>
   <footer>© 2026 Decoy</footer>
 </main>
+<script>
+(function () {
+  // 대기 명단 신청. 공개용 키라 페이지에 있어도 된다(서버는 join_waitlist 함수로 넣기만 허용).
+  var API = "https://dkoeulbfpwtxlfhounvq.supabase.co/rest/v1/rpc/join_waitlist";
+  var KEY = "sb_publishable_Qyt-b42bhEJ3N9RSfNocdA_tkohPm7J";
+  var ko = /^ko/i.test(navigator.language || "");
+  var t = ko ? {
+    invalid: "이메일 주소를 확인해 주세요.",
+    agree: "동의에 체크해 주세요.",
+    sending: "보내는 중…",
+    done: "신청됐어요. 출시되면 가장 먼저 알려 드릴게요.",
+    fail: "지금은 신청되지 않았어요. 잠시 후 다시 해 주세요."
+  } : {
+    invalid: "Please check your email address.",
+    agree: "Please tick the consent box.",
+    sending: "Sending…",
+    done: "You're on the list. We'll let you know when Decoy is out.",
+    fail: "That didn't go through. Please try again in a moment."
+  };
+  if (!ko) {
+    var set = function (id, s) { document.getElementById(id).textContent = s; };
+    set("w-title", "Get notified at launch");
+    set("w-label", "Email");
+    set("w-btn", "Notify me");
+    set("w-agree-text", "We collect your email only to tell you when Decoy launches, and delete it within 3 months after that email. You can't sign up without agreeing.");
+    set("w-more", "Details");
+    document.getElementById("w-more").href = "privacy.html#waitlist-en";
+    document.getElementById("w-email").placeholder = "Email address";
+  }
+
+  var q = new URLSearchParams(location.search);
+  // 어느 게시물에서 왔는지: 링크에 ?from=reel01 처럼 붙인다
+  var source = (q.get("from") || q.get("utm_source") || "").replace(/[^\w.-]/g, "").slice(0, 64);
+
+  var form = document.getElementById("wait"), email = document.getElementById("w-email"),
+      agree = document.getElementById("w-agree"), btn = document.getElementById("w-btn"),
+      msg = document.getElementById("w-msg");
+  var say = function (s, bad) { msg.textContent = s; msg.classList.toggle("bad", !!bad); };
+
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var v = email.value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || v.length > 254) { say(t.invalid, true); email.focus(); return; }
+    if (!agree.checked) { say(t.agree, true); agree.focus(); return; }
+    if (form.website.value) { form.reset(); say(t.done); return; }
+    btn.disabled = true; say(t.sending);
+    fetch(API, {
+      method: "POST",
+      headers: { "apikey": KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_email: v, p_lang: navigator.language || "", p_source: source })
+    }).then(function (r) {
+      if (r.ok) { form.reset(); say(t.done); }
+      else if (r.status === 400) { say(t.invalid, true); }
+      else { say(t.fail, true); }
+    }).catch(function () { say(t.fail, true); })
+      .then(function () { btn.disabled = false; });
+  });
+})();
+</script>
 </body>
 </html>
